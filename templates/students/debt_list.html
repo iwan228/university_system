@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Список должников{% endblock %}
+
+{% block breadcrumb %}
+<span style="font-weight: 600; color: var(--primary);">📋 Список должников</span>
+{% endblock %}
+
+{% block content %}
+<!-- Filters Panel -->
+<div class="filters-panel">
+    <div class="filters-title">🔍 Фильтры</div>
+    <form method="get" action="">
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label for="id_student_name">ФИО студента</label>
+                <input type="text" name="student_name" id="id_student_name"
+                       value="{{ request.GET.student_name|default:'' }}"
+                       placeholder="Поиск по ФИО...">
+            </div>
+            <div class="filter-group">
+                <label for="id_subject">Дисциплина</label>
+                <select name="subject" id="id_subject">
+                    <option value="">Все дисциплины</option>
+                    {% for choice in filter.form.subject.field.queryset %}
+                        <option value="{{ choice.pk }}" {% if request.GET.subject == choice.pk|stringformat:"d" %}selected{% endif %}>
+                            {{ choice }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="id_direction">Специальность</label>
+                <select name="direction" id="id_direction">
+                    <option value="">Все специальности</option>
+                    {% for choice in filter.form.direction.field.queryset %}
+                        <option value="{{ choice.pk }}" {% if request.GET.direction == choice.pk|stringformat:"d" %}selected{% endif %}>
+                            {{ choice }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="id_group">Группа</label>
+                <select name="group" id="id_group">
+                    <option value="">Все группы</option>
+                    {% for choice in filter.form.group.field.queryset %}
+                        <option value="{{ choice.pk }}" {% if request.GET.group == choice.pk|stringformat:"d" %}selected{% endif %}>
+                            {{ choice }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="id_course">Курс</label>
+                <select name="course" id="id_course">
+                    <option value="">Все курсы</option>
+                    {% for c in courses %}
+                        <option value="{{ c }}" {% if request.GET.course == c|stringformat:"d" %}selected{% endif %}>
+                            {{ c }} курс
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="id_institute">Институт</label>
+                <select name="institute" id="id_institute">
+                    <option value="">Все институты</option>
+                    {% for inst in institutes %}
+                        <option value="{{ inst }}" {% if request.GET.institute == inst %}selected{% endif %}>{{ inst }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="id_academic_session">Учебная сессия</label>
+                <select name="academic_session" id="id_academic_session">
+                    <option value="">Все сессии</option>
+                    {% for sess in sessions %}
+                        <option value="{{ sess }}" {% if request.GET.academic_session == sess %}selected{% endif %}>{{ sess }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="id_status">Статус</label>
+                <select name="status" id="id_status">
+                    <option value="">Все статусы</option>
+                    {% for st in statuses %}
+                        <option value="{{ st }}" {% if request.GET.status == st %}selected{% endif %}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="id_control_type">Вид контроля</label>
+                <select name="control_type" id="id_control_type">
+                    <option value="">Все виды</option>
+                    {% for ct in control_types %}
+                        <option value="{{ ct }}" {% if request.GET.control_type == ct %}selected{% endif %}>{{ ct }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Применить</button>
+                <a href="{% url 'debt_list' %}" class="btn btn-outline btn-sm">Сбросить</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Actions bar -->
+<div class="d-flex justify-between align-center flex-wrap gap-1 mb-2">
+    <div>
+        <strong>Найдено записей:</strong> {{ total_count }}
+    </div>
+    <div class="d-flex gap-1">
+        <a href="{% url 'export_excel' %}?{{ request.GET.urlencode }}" class="btn btn-success btn-sm">
+            📥 Экспорт в Excel
+        </a>
+        <a href="{% url 'import_excel' %}" class="btn btn-primary btn-sm">
+            📤 Импорт из Excel
+        </a>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>№ п/п</th>
+                    <th>Институт</th>
+                    <th>Учебная сессия</th>
+                    <th>Ведомость</th>
+                    <th>Дисциплина</th>
+                    <th>Вид контроля</th>
+                    <th>Студент</th>
+                    <th>Статус</th>
+                    <th>Попытка</th>
+                    <th>Дата попытки</th>
+                    <th>Оценка</th>
+                    <th>Курс</th>
+                    <th>Группа</th>
+                    <th>Форма обучения</th>
+                    <th>Специальность</th>
+                    <th>Преподаватель</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for debt in page_obj %}
+                <tr>
+                    <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+                    <td>{{ debt.institute }}</td>
+                    <td>{{ debt.academic_session }}</td>
+                    <td>{{ debt.sheet_number }}</td>
+                    <td>{{ debt.subject.name }}</td>
+                    <td>{{ debt.control_type }}</td>
+                    <td>
+                        <strong>{{ debt.student.last_name }}</strong>
+                        {{ debt.student.first_name }} {{ debt.student.patronymic }}
+                        <br><small class="text-muted">{{ debt.student.student_id }} | {{ debt.student.education_level }}</small>
+                    </td>
+                    <td>
+                        <span class="badge badge-active">{{ debt.status }}</span>
+                    </td>
+                    <td>{{ debt.attempt }}</td>
+                    <td>{% if debt.attempt_date %}{{ debt.attempt_date|date:"d.m.Y" }}{% else %}—{% endif %}</td>
+                    <td>{{ debt.grade }}</td>
+                    <td>{{ debt.student.group.course }}</td>
+                    <td>{{ debt.student.group.name }}</td>
+                    <td>{{ debt.student.education_form }}</td>
+                    <td>{{ debt.student.group.direction }}</td>
+                    <td>{{ debt.teacher }}</td>
+                    <td>
+                        <a href="{% url 'debt_edit' debt.id %}" class="btn btn-outline btn-sm" title="Редактировать">
+                            ✏️
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="17" class="text-center text-muted" style="padding: 2rem;">
+                        Нет данных. Загрузите данные из Excel-файла.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}">« Назад</a>
+    {% else %}
+        <span class="disabled"><span>« Назад</span></span>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <span class="active"><span>{{ num }}</span></span>
+        {% elif num > page_obj.number|add:'-5' and num < page_obj.number|add:'5' %}
+            <a href="?{{ request.GET.urlencode }}&page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}">Далее »</a>
+    {% else %}
+        <span class="disabled"><span>Далее »</span></span>
+    {% endif %}
+</nav>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('id_direction').addEventListener('change', function() {
+    const directionId = this.value;
+    const groupSelect = document.getElementById('id_group');
+
+    if (!directionId) {
+        location.reload();
+        return;
+    }
+
+    fetch(`/students/api/groups/?direction_id=${directionId}`)
+        .then(r => r.json())
+        .then(groups => {
+            groupSelect.innerHTML = '<option value="">Все группы</option>';
+            groups.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g.id;
+                opt.textContent = g.name;
+                groupSelect.appendChild(opt);
+            });
+        });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Ведомости комиссий{% endblock %}
+
+{% block breadcrumb %}
+<span style="font-weight: 600; color: var(--primary);">📝 Ведомости комиссий</span>
+{% endblock %}
+
+{% block content %}
+<!-- Status filter tabs -->
+<div class="d-flex justify-between align-center flex-wrap gap-1 mb-2">
+    <div class="d-flex gap-1">
+        <a href="{% url 'commissions:commission_list' %}" 
+           class="btn {% if not current_status %}btn-primary{% else %}btn-outline{% endif %} btn-sm">
+            Все
+        </a>
+        <a href="{% url 'commissions:commission_list' %}?status=open" 
+           class="btn {% if current_status == 'open' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">
+            Открытые
+        </a>
+        <a href="{% url 'commissions:commission_list' %}?status=closed" 
+           class="btn {% if current_status == 'closed' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">
+            Закрытые
+        </a>
+    </div>
+    <a href="{% url 'commissions:commission_create' %}" class="btn btn-primary btn-sm">
+        ➕ Новая ведомость
+    </a>
+</div>
+
+<!-- Sheets list -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Предмет</th>
+                    <th>Дата</th>
+                    <th>Председатель</th>
+                    <th>Студентов</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sheet in sheets %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong>{{ sheet.subject.name }}</strong></td>
+                    <td>{{ sheet.date|date:"d.m.Y" }}</td>
+                    <td>{{ sheet.chairman|default:"—" }}</td>
+                    <td>{{ sheet.entries.count }}</td>
+                    <td>
+                        {% if sheet.is_open %}
+                            <span class="badge badge-open">Открыта</span>
+                        {% else %}
+                            <span class="badge badge-closed">Закрыта</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'commissions:commission_detail' sheet.id %}" class="btn btn-primary btn-sm">
+                                Открыть
+                            </a>
+                            <a href="{% url 'commissions:commission_export' sheet.id %}" class="btn btn-outline btn-sm" title="Скачать Excel">
+                                📥
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted" style="padding: 2rem;">
+                        Ведомости комиссий не созданы.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

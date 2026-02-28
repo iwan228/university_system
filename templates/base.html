@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Дирекция{% endblock %} — Система учёта</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+{% if user.is_authenticated %}
+<div class="layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <h3>🎓 Дирекция</h3>
+            <small>Система учёта контингента</small>
+        </div>
+        <ul class="sidebar-nav">
+            <li class="nav-section">Навигация</li>
+            <li>
+                <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <span class="nav-icon">📊</span> Главная
+                </a>
+            </li>
+            <li class="nav-section">Студенты</li>
+            <li>
+                <a href="{% url 'debt_list' %}" class="{% if request.resolver_match.url_name == 'debt_list' %}active{% endif %}">
+                    <span class="nav-icon">📋</span> Должники
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'import_excel' %}" class="{% if request.resolver_match.url_name == 'import_excel' %}active{% endif %}">
+                    <span class="nav-icon">📥</span> Импорт Excel
+                </a>
+            </li>
+            <li class="nav-section">Комиссии</li>
+            <li>
+                <a href="{% url 'commissions:commission_list' %}" class="{% if request.resolver_match.app_name == 'commissions' and request.resolver_match.url_name == 'commission_list' %}active{% endif %}">
+                    <span class="nav-icon">📝</span> Ведомости
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'commissions:commission_create' %}" class="{% if request.resolver_match.url_name == 'commission_create' %}active{% endif %}">
+                    <span class="nav-icon">➕</span> Новая комиссия
+                </a>
+            </li>
+            <li class="nav-section">Система</li>
+            <li>
+                <a href="{% url 'admin:index' %}">
+                    <span class="nav-icon">⚙️</span> Администрирование
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                    ☰
+                </button>
+                <div>
+                    {% block breadcrumb %}{% endblock %}
+                </div>
+            </div>
+            <div class="topbar-right">
+                <span class="text-muted">{{ user.username }}</span>
+                <a href="{% url 'logout' %}" class="btn btn-outline btn-sm">Выйти</a>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% else %}
+    {% block anonymous_content %}{% endblock %}
+{% endif %}
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

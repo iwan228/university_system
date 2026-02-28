@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование задолженности{% endblock %}
+
+{% block breadcrumb %}
+<span>
+    <a href="{% url 'debt_list' %}" style="color: var(--primary); text-decoration: none;">📋 Должники</a>
+    → Редактирование
+</span>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 700px;">
+    <div class="card-header">
+        ✏️ Редактировать задолженность: {{ debt.student }}
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <small style="color: var(--danger);">{{ error }}</small>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <div class="d-flex gap-1">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a href="{% url 'debt_list' %}" class="btn btn-outline">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

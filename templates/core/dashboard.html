@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Главная{% endblock %}
+
+{% block breadcrumb %}
+<span style="font-weight: 600; color: var(--primary);">📊 Главная панель</span>
+{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-value">{{ total_students }}</div>
+        <div class="stat-label">Всего студентов</div>
+    </div>
+    <div class="stat-card danger">
+        <div class="stat-value">{{ total_debts }}</div>
+        <div class="stat-label">Всего задолженностей</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-value">{{ unique_debtors }}</div>
+        <div class="stat-label">Уникальных должников</div>
+    </div>
+    <div class="stat-card info">
+        <div class="stat-value">{{ open_sheets }}</div>
+        <div class="stat-label">Открытых ведомостей</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div class="card">
+        <div class="card-header">
+            <span>📋 Быстрый доступ — Должники</span>
+        </div>
+        <div class="card-body">
+            <p>Просматривайте списки должников, фильтруйте по предмету, направлению, группе и курсу.</p>
+            <a href="{% url 'debt_list' %}" class="btn btn-primary">Перейти к должникам</a>
+            <a href="{% url 'import_excel' %}" class="btn btn-outline" style="margin-left: 0.5rem;">Импорт из Excel</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span>📝 Быстрый доступ — Комиссии</span>
+        </div>
+        <div class="card-body">
+            <p>Формируйте ведомости комиссий, заполняйте автоматически или вручную.</p>
+            <a href="{% url 'commissions:commission_list' %}" class="btn btn-primary">Ведомости</a>
+            <a href="{% url 'commissions:commission_create' %}" class="btn btn-outline" style="margin-left: 0.5rem;">Создать ведомость</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

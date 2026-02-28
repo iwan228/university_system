@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Выставить оценку{% endblock %}
+
+{% block breadcrumb %}
+<span>
+    <a href="{% url 'commissions:commission_list' %}" style="color: var(--primary); text-decoration: none;">📝 Ведомости</a>
+    → <a href="{% url 'commissions:commission_detail' sheet.id %}" style="color: var(--primary); text-decoration: none;">{{ sheet.subject }}</a>
+    → Оценка
+</span>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">
+        ✏️ Выставить оценку: {{ entry.student.full_name }}
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <div>
+                <strong>Студент:</strong> {{ entry.student.full_name }}<br>
+                <strong>Группа:</strong> {{ entry.student.group.name }}<br>
+                <strong>Предмет:</strong> {{ sheet.subject.name }}<br>
+                <strong>Дата комиссии:</strong> {{ sheet.date|date:"d.m.Y" }}
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <small style="color: var(--danger);">{{ error }}</small>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <div class="d-flex gap-1">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a href="{% url 'commissions:commission_detail' sheet.id %}" class="btn btn-outline">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

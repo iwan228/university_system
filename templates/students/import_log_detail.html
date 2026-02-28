@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Результат импорта{% endblock %}
+
+{% block breadcrumb %}
+<span>
+    <a href="{% url 'import_excel' %}" style="color: var(--primary); text-decoration: none;">📥 Импорт</a>
+    → Результат
+</span>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px;">
+    <div class="card-header">
+        📑 Результат импорта: {{ log.file_name }}
+    </div>
+    <div class="card-body">
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-value">{{ log.rows_total }}</div>
+                <div class="stat-label">Всего строк</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-value">{{ log.rows_imported }}</div>
+                <div class="stat-label">Успешно загружено</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-value">{{ log.rows_errors }}</div>
+                <div class="stat-label">Ошибок</div>
+            </div>
+        </div>
+
+        <p class="text-muted">Дата импорта: {{ log.imported_at|date:"d.m.Y H:i:s" }}</p>
+
+        {% if log.error_details %}
+        <div class="card" style="margin-top: 1rem;">
+            <div class="card-header" style="background: #f8d7da;">
+                ⚠️ Ошибки при импорте
+            </div>
+            <div class="card-body">
+                <pre style="font-size: 0.8rem; white-space: pre-wrap; margin: 0;">{{ log.error_details }}</pre>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="d-flex gap-1 mt-2">
+            <a href="{% url 'debt_list' %}" class="btn btn-primary">Перейти к должникам</a>
+            <a href="{% url 'import_excel' %}" class="btn btn-outline">Новый импорт</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

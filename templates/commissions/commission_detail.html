@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Ведомость: {{ sheet.subject }}{% endblock %}
+
+{% block breadcrumb %}
+<span>
+    <a href="{% url 'commissions:commission_list' %}" style="color: var(--primary); text-decoration: none;">📝 Ведомости</a>
+    → {{ sheet.subject.name }} ({{ sheet.date|date:"d.m.Y" }})
+</span>
+{% endblock %}
+
+{% block content %}
+<!-- Sheet info -->
+<div class="card">
+    <div class="card-header">
+        <span>📝 Ведомость комиссии</span>
+        <div class="d-flex gap-1">
+            {% if sheet.is_open %}
+                <span class="badge badge-open">Открыта</span>
+            {% else %}
+                <span class="badge badge-closed">Закрыта</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+                <p><strong>Предмет:</strong> {{ sheet.subject.name }}</p>
+                <p><strong>Дата проведения:</strong> {{ sheet.date|date:"d.m.Y" }}</p>
+                <p><strong>Председатель:</strong> {{ sheet.chairman|default:"Не указан" }}</p>
+            </div>
+            <div>
+                <p><strong>Член комиссии 1:</strong> {{ sheet.member_1|default:"Не указан" }}</p>
+                <p><strong>Член комиссии 2:</strong> {{ sheet.member_2|default:"Не указан" }}</p>
+                {% if sheet.notes %}
+                    <p><strong>Примечания:</strong> {{ sheet.notes }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action buttons -->
+<div class="d-flex justify-between align-center flex-wrap gap-1 mb-2">
+    <div class="d-flex gap-1">
+        {% if sheet.is_open %}
+            <a href="{% url 'commissions:commission_autofill' sheet.id %}" class="btn btn-primary btn-sm"
+               onclick="return confirm('Автоматически добавить всех должников по предмету «{{ sheet.subject.name }}»?');">
+                ⚡ Авто-заполнение
+            </a>
+            <a href="{% url 'commissions:commission_add_student' sheet.id %}" class="btn btn-outline btn-sm">
+                ➕ Добавить студента
+            </a>
+        {% endif %}
+        <a href="{% url 'commissions:commission_edit' sheet.id %}" class="btn btn-outline btn-sm">
+            ✏️ Редактировать
+        </a>
+    </div>
+    <div class="d-flex gap-1">
+        <a href="{% url 'commissions:commission_export' sheet.id %}" class="btn btn-success btn-sm">
+            📥 Скачать Excel
+        </a>
+        {% if sheet.is_open %}
+            <form method="post" action="{% url 'commissions:commission_close' sheet.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="return confirm('Закрыть ведомость? Это действие нельзя отменить.');">
+                    🔒 Закрыть ведомость
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Entries table -->
+<div class="card">
+    <div class="card-header">
+        <span>Студенты в ведомости ({{ entries|length }})</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>ФИО</th>
+                    <th>Группа</th>
+                    <th>Зачётная книжка</th>
+                    <th>Оценка</th>
+                    <th>Примечания</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong>{{ entry.student.full_name }}</strong></td>
+                    <td>{{ entry.student.group.name }}</td>
+                    <td>{{ entry.student.student_id }}</td>
+                    <td>
+                        {% if entry.grade %}
+                            {% if entry.grade == 'absent' %}
+                                <span class="badge badge-absence">{{ entry.get_grade_display }}</span>
+                            {% elif entry.grade == '2' or entry.grade == 'fail' %}
+                                <span class="badge badge-active">{{ entry.get_grade_display }}</span>
+                            {% else %}
+                                <span class="badge badge-closed">{{ entry.get_grade_display }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">Не выставлена</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ entry.notes|default:"—" }}</td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            {% if sheet.is_open %}
+                                <a href="{% url 'commissions:commission_update_grade' sheet.id entry.id %}" 
+                                   class="btn btn-outline btn-sm" title="Оценка">
+                                    ✏️
+                                </a>
+                                <form method="post" action="{% url 'commissions:commission_remove_entry' sheet.id entry.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline btn-sm" title="Удалить"
+                                            onclick="return confirm('Удалить студента из ведомости?');"
+                                            style="color: var(--danger);">
+                                        ✕
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted" style="padding: 2rem;">
+                        В ведомости пока нет студентов. Используйте «Авто-заполнение» или добавьте вручную.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

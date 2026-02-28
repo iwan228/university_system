@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Импорт из Excel{% endblock %}
+
+{% block breadcrumb %}
+<span style="font-weight: 600; color: var(--primary);">📥 Импорт из Excel</span>
+{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <!-- Upload form -->
+    <div class="card">
+        <div class="card-header">📤 Загрузить файл</div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>{{ form.file.label }}</label>
+                    {{ form.file }}
+                    {% if form.file.help_text %}
+                        <small class="text-muted">{{ form.file.help_text }}</small>
+                    {% endif %}
+                    {% for error in form.file.errors %}
+                        <small style="color: var(--danger);">{{ error }}</small>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary">Загрузить и импортировать</button>
+            </form>
+
+            <hr style="margin: 1.5rem 0; border-color: var(--border);">
+
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">📄 Ожидаемый формат файла</h4>
+            <p style="font-size: 0.85rem; color: #666;">Поддерживаются форматы: <strong>.xls</strong> и <strong>.xlsx</strong></p>
+            <div class="table-responsive">
+                <table class="table" style="font-size: 0.8rem;">
+                    <thead>
+                        <tr>
+                            <th>Столбец</th>
+                            <th>Поле</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1 (A)</td><td>№ п/п</td></tr>
+                        <tr><td>2 (B)</td><td>Институт</td></tr>
+                        <tr><td>5 (E)</td><td>Учебная сессия</td></tr>
+                        <tr><td>6 (F)</td><td>Ведомость</td></tr>
+                        <tr><td>7 (G)</td><td>Дисциплина</td></tr>
+                        <tr><td>9 (I)</td><td>Вид контроля</td></tr>
+                        <tr><td>10 (J)</td><td>Студент (ФИО|зачётка|уровень)</td></tr>
+                        <tr><td>11 (K)</td><td>Статус</td></tr>
+                        <tr><td>12 (L)</td><td>Попытка</td></tr>
+                        <tr><td>13 (M)</td><td>Дата попытки</td></tr>
+                        <tr><td>14 (N)</td><td>Оценка</td></tr>
+                        <tr><td>15 (O)</td><td>Курс</td></tr>
+                        <tr><td>16 (P)</td><td>Группа</td></tr>
+                        <tr><td>17 (Q)</td><td>Форма обучения</td></tr>
+                        <tr><td>18 (R)</td><td>Специальность (код + название)</td></tr>
+                        <tr><td>19 (S)</td><td>Преподаватель</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent imports -->
+    <div class="card">
+        <div class="card-header">📑 Последние импорты</div>
+        <div class="card-body">
+            {% if recent_logs %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Файл</th>
+                            <th>Дата</th>
+                            <th>Загружено</th>
+                            <th>Ошибок</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in recent_logs %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'import_log_detail' log.id %}">{{ log.file_name }}</a>
+                            </td>
+                            <td>{{ log.imported_at|date:"d.m.Y H:i" }}</td>
+                            <td>{{ log.rows_imported }}/{{ log.rows_total }}</td>
+                            <td>
+                                {% if log.rows_errors > 0 %}
+                                    <span class="badge badge-absence">{{ log.rows_errors }}</span>
+                                {% else %}
+                                    <span class="badge badge-closed">0</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <p class="text-muted text-center">Импорты ещё не проводились.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
