@@ -14,4 +14,6 @@ urlpatterns = [
     path('<int:sheet_id>/entry/<int:entry_id>/remove/', views.commission_remove_entry, name='commission_remove_entry'),
     path('<int:sheet_id>/close/', views.commission_close, name='commission_close'),
     path('<int:sheet_id>/export/', views.commission_export, name='commission_export'),
+    path('<int:sheet_id>/print/protocol/', views.commission_print_protocol, name='commission_print_protocol'),
+    path('<int:sheet_id>/print/order/', views.commission_print_order, name='commission_print_order'),
 ]

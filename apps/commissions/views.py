@@ -8,6 +8,7 @@ from .models import CommissionSheet, CommissionEntry
 from .forms import CommissionSheetForm, CommissionEntryForm, AutoFillCommissionForm
 from apps.students.models import AcademicDebt, Student
 from apps.students.services import export_commission_sheet_to_excel
+from .printing import generate_commission_protocol_pdf, generate_commission_order_pdf
 
 
 @login_required
@@ -209,6 +210,32 @@ def commission_export(request, sheet_id):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     filename = f'vedomost_{sheet.subject.name}_{sheet.date:%Y%m%d}.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@login_required
+def commission_print_protocol(request, sheet_id):
+    """Return PDF protocol for the commission (printable)."""
+    sheet = get_object_or_404(CommissionSheet, pk=sheet_id)
+    entries = sheet.entries.select_related('student', 'student__group').all()
+    pdf = generate_commission_protocol_pdf(sheet, entries)
+    response = HttpResponse(pdf.getvalue(), content_type='application/pdf')
+    filename = f'protocol_{sheet.subject.name}_{sheet.date:%Y%m%d}.pdf'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@login_required
+def commission_print_order(request, sheet_id):
+    """Return PDF administrative order for the commission."""
+    sheet = get_object_or_404(CommissionSheet, pk=sheet_id)
+    entries = sheet.entries.select_related('student', 'student__group').all()
+    # Optional custom text can be passed via GET (or later via form)
+    order_text = request.GET.get('text')
+    pdf = generate_commission_order_pdf(sheet, entries, order_text=order_text)
+    response = HttpResponse(pdf.getvalue(), content_type='application/pdf')
+    filename = f'order_{sheet.subject.name}_{sheet.date:%Y%m%d}.pdf'
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 

@@ -60,6 +60,12 @@
         <a href="{% url 'commissions:commission_export' sheet.id %}" class="btn btn-success btn-sm">
             📥 Скачать Excel
         </a>
+        <a href="{% url 'commissions:commission_print_protocol' sheet.id %}" target="_blank" class="btn btn-outline btn-sm">
+            🖨️ Протокол (PDF)
+        </a>
+        <button type="button" id="btn-print-order" class="btn btn-outline btn-sm">
+            📝 Распоряжение (PDF)
+        </button>
         {% if sheet.is_open %}
             <form method="post" action="{% url 'commissions:commission_close' sheet.id %}" style="display:inline;">
                 {% csrf_token %}
@@ -143,4 +149,17 @@
         </table>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('btn-print-order').addEventListener('click', function() {
+    var text = prompt('Текст распоряжения (необязательно):', '');
+    var url = '{% url "commissions:commission_print_order" sheet.id %}';
+    if (text !== null && text !== '') {
+        url += '?text=' + encodeURIComponent(text);
+    }
+    window.open(url, '_blank');
+});
+</script>
 {% endblock %}

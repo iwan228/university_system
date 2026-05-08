@@ -327,9 +327,10 @@ def export_debts_to_excel(debts_queryset):
             debt.teacher,
         ])
 
-    for col in ws.columns:
+    from openpyxl.utils import get_column_letter
+    for idx, col in enumerate(ws.columns, start=1):
         max_length = 0
-        col_letter = col[0].column_letter
+        col_letter = get_column_letter(idx)
         for cell in col:
             try:
                 if cell.value:
@@ -389,9 +390,10 @@ def export_commission_sheet_to_excel(sheet):
         ws.cell(row=row, column=5, value=entry.get_grade_display())
         ws.cell(row=row, column=6, value=entry.notes)
 
-    for col in ws.columns:
+    from openpyxl.utils import get_column_letter
+    for idx, col in enumerate(ws.columns, start=1):
         max_length = 0
-        col_letter = col[0].column_letter
+        col_letter = get_column_letter(idx)
         for cell in col:
             try:
                 if cell.value:
