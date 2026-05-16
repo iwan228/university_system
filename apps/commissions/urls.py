@@ -16,4 +16,5 @@ urlpatterns = [
     path('<int:sheet_id>/export/', views.commission_export, name='commission_export'),
     path('<int:sheet_id>/print/protocol/', views.commission_print_protocol, name='commission_print_protocol'),
     path('<int:sheet_id>/print/order/', views.commission_print_order, name='commission_print_order'),
+    path('<int:sheet_id>/print/table/', views.commission_print_table, name='commission_print_table'),
 ]

@@ -27,11 +27,13 @@
             <div>
                 <p><strong>Предмет:</strong> {{ sheet.subject.name }}</p>
                 <p><strong>Дата проведения:</strong> {{ sheet.date|date:"d.m.Y" }}</p>
-                <p><strong>Председатель:</strong> {{ sheet.chairman|default:"Не указан" }}</p>
+                <p><strong>Детали Председателя:</strong> {{ sheet.chairman_title }} {{ sheet.chairman_school }} {{ sheet.chairman|default:"Не указан" }}</p>
+                <p><strong>Распоряжение:</strong> {{ sheet.order_number|default:"-" }} от {{ sheet.order_date|date:"d.m.Y"|default:"-" }}</p>
+                <p><strong>Протокол / Ведомость:</strong> {{ sheet.protocol_number|default:"-" }} / {{ sheet.table_number|default:"-" }}</p>
             </div>
             <div>
-                <p><strong>Член комиссии 1:</strong> {{ sheet.member_1|default:"Не указан" }}</p>
-                <p><strong>Член комиссии 2:</strong> {{ sheet.member_2|default:"Не указан" }}</p>
+                <p><strong>Член комиссии 1:</strong> {{ sheet.member_1_title }} {{ sheet.member_1_school }} {{ sheet.member_1|default:"Не указан" }}</p>
+                <p><strong>Член комиссии 2:</strong> {{ sheet.member_2_title }} {{ sheet.member_2_school }} {{ sheet.member_2|default:"Не указан" }}</p>
                 {% if sheet.notes %}
                     <p><strong>Примечания:</strong> {{ sheet.notes }}</p>
                 {% endif %}
@@ -66,6 +68,9 @@
         <button type="button" id="btn-print-order" class="btn btn-outline btn-sm">
             📝 Распоряжение (PDF)
         </button>
+        <a href="{% url 'commissions:commission_print_table' sheet.id %}" target="_blank" class="btn btn-outline btn-sm">
+            📋 Ведомость (PDF)
+        </a>
         {% if sheet.is_open %}
             <form method="post" action="{% url 'commissions:commission_close' sheet.id %}" style="display:inline;">
                 {% csrf_token %}

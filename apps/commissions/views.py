@@ -8,7 +8,7 @@ from .models import CommissionSheet, CommissionEntry
 from .forms import CommissionSheetForm, CommissionEntryForm, AutoFillCommissionForm
 from apps.students.models import AcademicDebt, Student
 from apps.students.services import export_commission_sheet_to_excel
-from .printing import generate_commission_protocol_pdf, generate_commission_order_pdf
+from .printing import generate_commission_protocol_pdf, generate_commission_order_pdf, generate_commission_table_pdf
 
 
 @login_required
@@ -260,3 +260,15 @@ def commission_remove_entry(request, sheet_id, entry_id):
         messages.success(request, f'Студент {student_name} удалён из ведомости.')
 
     return redirect('commissions:commission_detail', sheet_id=sheet.id)
+
+
+@login_required
+def commission_print_table(request, sheet_id):
+    """Return PDF exam table for the commission."""
+    sheet = get_object_or_404(CommissionSheet, pk=sheet_id)
+    entries = sheet.entries.select_related('student', 'student__group').all()
+    pdf = generate_commission_table_pdf(sheet, entries)
+    response = HttpResponse(pdf.getvalue(), content_type='application/pdf')
+    filename = f'table_{sheet.subject.name}_{sheet.date:%Y%m%d}.pdf'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

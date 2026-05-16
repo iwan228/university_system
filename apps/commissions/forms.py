@@ -7,14 +7,36 @@ class CommissionSheetForm(forms.ModelForm):
     """Форма создания/редактирования ведомости комиссии"""
     class Meta:
         model = CommissionSheet
-        fields = ['subject', 'date', 'status', 'chairman', 'member_1', 'member_2', 'notes']
+        fields = [
+            'subject', 'date', 'status', 'order_number', 'order_date',
+            'protocol_number', 'table_number',
+            'chairman', 'chairman_title', 'chairman_school',
+            'member_1', 'member_1_title', 'member_1_school',
+            'member_2', 'member_2_title', 'member_2_school',
+            'notes'
+        ]
         widgets = {
             'subject': forms.Select(attrs={'class': 'form-select'}),
             'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
-            'chairman': forms.TextInput(attrs={'class': 'form-control'}),
-            'member_1': forms.TextInput(attrs={'class': 'form-control'}),
-            'member_2': forms.TextInput(attrs={'class': 'form-control'}),
+            
+            'order_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Например: 143-23-эк'}),
+            'order_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'protocol_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Свой номер (без этого - авто)'}),
+            'table_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Свой номер (без этого - авто)'}),
+            
+            'chairman': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'ФИО (например: Гасумянц В.Э.)'}),
+            'chairman_title': forms.Select(attrs={'class': 'form-select'}),
+            'chairman_school': forms.Select(attrs={'class': 'form-select'}),
+            
+            'member_1': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'ФИО (например: Рыков С.А.)'}),
+            'member_1_title': forms.Select(attrs={'class': 'form-select'}),
+            'member_1_school': forms.Select(attrs={'class': 'form-select'}),
+            
+            'member_2': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'ФИО (например: Винниченко М.Я.)'}),
+            'member_2_title': forms.Select(attrs={'class': 'form-select'}),
+            'member_2_school': forms.Select(attrs={'class': 'form-select'}),
+            
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 

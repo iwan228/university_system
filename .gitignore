@@ -37,3 +37,14 @@ backups/
 
 # Static collected
 staticfiles/
+
+# Environment variables (НИКОГДА не коммитьте!)
+.env
+.env.local
+.env.*.local
+
+# SSL сертификаты (генерируются/загружаются отдельно)
+
+postgres_data/
+static_volume/
+media_volume/
